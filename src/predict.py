@@ -66,8 +66,6 @@ def run_batch_predictions() -> None:
         ids,
     )
 
-    print(predictions_df)
-
     logger.info("Saving predictions...")
     save_dataframe_as_csv(
         dataframe=predictions_df, file_path=paths.PREDICTIONS_FILE_PATH

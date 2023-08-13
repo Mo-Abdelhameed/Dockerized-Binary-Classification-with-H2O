@@ -38,7 +38,7 @@ class Classifier:
         x.remove(schema.id)
         x.remove(schema.target)
         self.y = schema.target
-        self.aml = H2OAutoML(max_models=8, seed=10, nfolds=10)
+        self.aml = H2OAutoML(max_models=8, seed=10, nfolds=10, verbosity='info')
         self.x = x
         self.training_df[schema.target] = self.training_df[schema.target].asfactor()
 
@@ -46,15 +46,6 @@ class Classifier:
         self.aml.train(x=self.x, y=self.y, training_frame=self.training_df, validation_frame=self.validation_df)
         self._is_trained = True
 
-    # def predict(self, inputs: pd.DataFrame) -> np.ndarray:
-    #     """Predict class labels for the given data.
-    #
-    #     Args:
-    #         inputs (pandas.DataFrame): The input data.
-    #     Returns:
-    #         numpy.ndarray: The predicted class labels.
-    #     """
-    #     return self.aml.leader.model.predict(inputs)
 
     def predict_proba(self, inputs: pd.DataFrame) -> h2o.H2OFrame:
         """Predict class probabilities for the given data.
