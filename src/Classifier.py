@@ -1,19 +1,11 @@
 import os
 import warnings
 import pandas as pd
-import numpy as np
-import joblib
 import h2o
+from h2o.model import ModelBase
 from h2o.automl import H2OAutoML
 from sklearn.exceptions import NotFittedError
 from schema.data_schema import BinaryClassificationSchema
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.neural_network import MLPClassifier
-from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
-from sklearn.tree import DecisionTreeClassifier
-from h2o.model import ModelBase
 
 warnings.filterwarnings("ignore")
 
@@ -27,7 +19,7 @@ class Classifier:
         classifier models.
     """
 
-    model_name = 'pycaret_binary_classifier'
+    model_name = 'h2o_binary_classifier'
 
     def __init__(self, train_input: h2o.H2OFrame, schema: BinaryClassificationSchema):
         """Construct a new Binary Classifier."""
@@ -38,7 +30,7 @@ class Classifier:
         x.remove(schema.id)
         x.remove(schema.target)
         self.y = schema.target
-        self.aml = H2OAutoML(max_models=8, seed=10, nfolds=10, verbosity='info')
+        self.aml = H2OAutoML(max_models=10, seed=10, nfolds=10, verbosity='info')
         self.x = x
         self.training_df[schema.target] = self.training_df[schema.target].asfactor()
 
@@ -46,14 +38,13 @@ class Classifier:
         self.aml.train(x=self.x, y=self.y, training_frame=self.training_df, validation_frame=self.validation_df)
         self._is_trained = True
 
-
     def predict_proba(self, inputs: pd.DataFrame) -> h2o.H2OFrame:
         """Predict class probabilities for the given data.
 
         Args:
-            inputs (pandas.DataFrame): The input data.
+            inputs (h2o.H2OFrame): The input data.
         Returns:
-            numpy.ndarray: The predicted class probabilities.
+            h2o.H2OFrame: The predicted class probabilities.
         """
         return self.aml.leader.predict(inputs)
 
@@ -75,7 +66,7 @@ class Classifier:
         Args:
             model_dir_path (str): Dir path to the saved model.
         Returns:
-            Classifier: A new instance of the loaded KNN binary classifier.
+            ModelBase: A new instance of the loaded binary classifier.
         """
         return h2o.load_model(path=os.path.join(model_dir_path, PREDICTOR_FILE_NAME))
 
@@ -100,7 +91,7 @@ class Classifier:
         Save the classifier model to disk.
 
         Args:
-            model (Classifier): The classifier model to save.
+            model (ModelBase): The classifier model to save.
             predictor_dir_path (str): Dir path to which to save the model.
         """
         if not os.path.exists(predictor_dir_path):
@@ -108,7 +99,7 @@ class Classifier:
         model.save(predictor_dir_path)
 
     @classmethod
-    def load_predictor_model(cls, predictor_dir_path: str) -> "Classifier":
+    def load_predictor_model(cls, predictor_dir_path: str) -> ModelBase:
         """
         Load the classifier model from disk.
 

@@ -1,4 +1,5 @@
 import pandas as pd
+import h2o
 import uvicorn
 import uuid
 from typing import Any
@@ -107,4 +108,5 @@ def create_and_run_app(model_resources: ModelResources):
 
 
 if __name__ == "__main__":
+    h2o.init()
     create_and_run_app(model_resources=get_model_resources())

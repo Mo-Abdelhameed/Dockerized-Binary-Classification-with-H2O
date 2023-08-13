@@ -1,4 +1,3 @@
-import pandas as pd
 import h2o
 from config import paths
 from utils import read_csv_in_directory, save_dataframe_as_csv
@@ -13,7 +12,7 @@ def create_predictions_dataframe(
         predictions_df: h2o.H2OFrame,
         schema: BinaryClassificationSchema,
         ids: h2o.H2OFrame,
-        actual_prediction = False
+        actual_prediction: bool = False
 ) -> h2o.H2OFrame:
     """
     Converts the predictions numpy array into a dataframe having the required structure.
@@ -21,9 +20,12 @@ def create_predictions_dataframe(
     Args:
         predictions_df (predictions_df): Predicted probabilities from predictor model.
         schema (BinaryClassificationSchema): schema of the data used in training.
+        ids (h20.H2OFrame): identifier column of the input data.
+        actual_prediction (bool): indicates whether an additional column "prediction" having
+        the predicted class, is returned or not.
 
     Returns:
-        Predictions as a pandas dataframe
+        Probabilities for the target classes.
     """
     prediction = predictions_df['predict']
     predictions_df = predictions_df.drop('predict')

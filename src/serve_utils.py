@@ -2,6 +2,8 @@
 This script contains utility functions/classes that are used in serve.py
 """
 import uuid
+
+import h2o
 import pandas as pd
 from typing import Any, Dict, Tuple
 from config import paths
@@ -93,20 +95,23 @@ def transform_req_data_and_make_predictions(
     logger.info("Transforming data sample(s)...")
 
     logger.info("Making predictions...")
+    data = h2o.H2OFrame(data)
     predictions_arr = Classifier.predict_with_model(
-        model_resources.predictor_model, data, raw_score=True
+        model_resources.predictor_model, data
     )
     logger.info("Converting predictions array into dataframe...")
     predictions_df = create_predictions_dataframe(
         predictions_arr,
         model_resources.data_schema,
-        return_probs=True,
+        data[model_resources.data_schema.id],
+        actual_prediction=True,
     )
-
+    predictions_df = predictions_df.as_data_frame()
     logger.info("Converting predictions dataframe into response dictionary...")
     predictions_response = create_predictions_response(
         predictions_df, model_resources.data_schema, request_id
     )
+    data = data.as_data_frame()
     return data, predictions_response
 
 

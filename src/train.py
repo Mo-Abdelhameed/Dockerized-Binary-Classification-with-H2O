@@ -1,7 +1,6 @@
 import os
 import h2o
 from Classifier import Classifier
-from target_encoder import get_target_encoder, transform_targets
 from utils import read_csv_in_directory
 from config import paths
 from logger import get_logger, log_error
