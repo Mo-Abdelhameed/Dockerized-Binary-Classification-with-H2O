@@ -57,6 +57,10 @@ def run_batch_predictions() -> None:
     h2o.init()
     x_test = read_csv_in_directory(paths.TEST_DIR)
     data_schema = load_saved_schema(paths.SAVED_SCHEMA_DIR_PATH)
+
+    for cat_columns in data_schema.categorical_features:
+        x_test[cat_columns] = x_test[cat_columns].asfactor()
+
     model = Classifier.load(paths.PREDICTOR_DIR_PATH)
     logger.info("Making predictions...")
     predictions_df = Classifier.predict_with_model(model, x_test)
