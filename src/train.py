@@ -40,6 +40,9 @@ def run_training(
         logger.info("Loading training data...")
         x_train = read_csv_in_directory(train_dir)
 
+        for cat_columns in data_schema.categorical_features:
+            x_train[cat_columns] = x_train[cat_columns].asfactor()
+
         classifier = Classifier(x_train, data_schema)
         classifier.train()
         if not os.path.exists(predictor_dir_path):
