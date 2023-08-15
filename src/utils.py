@@ -78,7 +78,7 @@ def read_csv_in_directory(file_dir_path: str) -> h2o.H2OFrame:
         raise ValueError(f"Multiple CSV files found in directory {file_dir_path}.")
 
     csv_file_path = os.path.join(file_dir_path, csv_files[0])
-    df = h2o.import_file(csv_file_path, na_strings=['?'])
+    df = h2o.import_file(csv_file_path, na_strings=['?'], header=1)
     return df
 
 
