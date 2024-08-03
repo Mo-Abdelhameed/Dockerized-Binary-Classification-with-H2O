@@ -5,3 +5,11 @@ src/test.py
 model_inputs_outputs/model/
 logs.log
 configs
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/

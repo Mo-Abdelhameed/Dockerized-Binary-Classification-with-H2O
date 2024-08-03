@@ -1,6 +1,6 @@
 import h2o
 from config import paths
-from utils import read_csv_in_directory, save_dataframe_as_csv
+from utils import read_csv_in_directory, save_dataframe_as_csv, ResourceTracker
 from logger import get_logger
 from Classifier import Classifier
 from schema.data_schema import load_saved_schema, BinaryClassificationSchema
@@ -54,16 +54,17 @@ def run_batch_predictions() -> None:
         adds ids into the predictions dataframe,
         and saves the predictions as a CSV file.
         """
-    h2o.init()
-    x_test = read_csv_in_directory(paths.TEST_DIR)
-    data_schema = load_saved_schema(paths.SAVED_SCHEMA_DIR_PATH)
+    with ResourceTracker(logger, monitoring_interval=0.1):
+        h2o.init()
+        x_test = read_csv_in_directory(paths.TEST_DIR)
+        data_schema = load_saved_schema(paths.SAVED_SCHEMA_DIR_PATH)
 
-    for cat_columns in data_schema.categorical_features:
-        x_test[cat_columns] = x_test[cat_columns].asfactor()
+        for cat_columns in data_schema.categorical_features:
+            x_test[cat_columns] = x_test[cat_columns].asfactor()
 
-    model = Classifier.load(paths.PREDICTOR_DIR_PATH)
-    logger.info("Making predictions...")
-    predictions_df = Classifier.predict_with_model(model, x_test)
+        model = Classifier.load(paths.PREDICTOR_DIR_PATH)
+        logger.info("Making predictions...")
+        predictions_df = Classifier.predict_with_model(model, x_test)
     ids = x_test[data_schema.id]
 
     predictions_df = create_predictions_dataframe(
